@@ -126,6 +126,17 @@ class TestBrightcoveApi < Test::Unit::TestCase
     assert_nil brightcove_response['error']
   end
 
+  def test_delete_video_without_id_raises_exception
+    FakeWeb.register_uri(:post,
+                         'http://api.brightcove.com/services/post',
+                         :body => { :error => "missing video_id", :id => 303 }.to_json,
+                         :content_type => "application/json")
+    brightcove = Brightcove::API.new('0Z2dtxTdJAxtbZ-d0U7Bhio2V1Rhr5Iafl5FFtDPY8E.')
+    assert_raise RuntimeError do
+      brightcove_response = brightcove.post('delete_video', {})
+    end
+  end
+
   def test_create_video_using_post_file
     FakeWeb.register_uri(:post,
                          'http://api.brightcove.com/services/post',
