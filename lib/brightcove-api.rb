@@ -61,7 +61,7 @@ module Brightcove
     # you can add any parameters appropriate for the API call. If a query string, it will be
     # normalized to a hash via CGI.parse.
     def get(api_method, options = {})
-      self.class.get(@read_api_url, build_query_from_options(api_method, options))
+      result self.class.get(@read_api_url, build_query_from_options(api_method, options))
     end
 
     # Post to Brightcove using a particular API method, api_method. The parameters hash is where you add all the required parameters appropriate for the API call.
@@ -72,7 +72,7 @@ module Brightcove
       body.merge!({:method => api_method})
       body.merge!({:params => parameters})
 
-      self.class.post(@write_api_url, {:body => {:json => JSON.generate(body)}})
+      result self.class.post(@write_api_url, {:body => {:json => JSON.generate(body)}})
     end
 
     def post_file(api_method, file, parameters = {})
@@ -95,7 +95,25 @@ module Brightcove
 
       response = RestClient.post(@write_api_url, payload, :content_type => :json, :accept => :json, :multipart => true)
 
-      JSON.parse(response)
+      result JSON.parse(response)
+    end
+
+    private
+
+    # Returns the result of a brightcove api call, raising an exception on
+    # errors.
+    def result(brightcove_result)
+      # i'm not sure if this is really necessary, but some of the tests have
+      # nil responses
+      return if brightcove_result.nil?
+
+      if brightcove_result["error"]
+        raise "#{brightcove_result["id"]}: #{brightcove_result["error"]}"
+      end
+
+      brightcove_result.has_key?("result") ?
+        brightcove_result["result"] :
+        brightcove_result
     end
   end
 end

@@ -123,8 +123,7 @@ class TestBrightcoveApi < Test::Unit::TestCase
     brightcove = Brightcove::API.new('0Z2dtxTdJAxtbZ-d0U7Bhio2V1Rhr5Iafl5FFtDPY8E.')
     brightcove_response = brightcove.post('delete_video', {:video_id => '595153261337'})
 
-    assert brightcove_response.has_key?('result')
-    assert_equal brightcove_response['error'], 'nil'
+    assert_nil brightcove_response['error']
   end
 
   def test_create_video_using_post_file
@@ -138,8 +137,6 @@ class TestBrightcoveApi < Test::Unit::TestCase
       File.join(File.dirname(__FILE__), 'fakeweb', 'movie.mov'),
       :video => {:shortDescription => "Short Description", :name => "Video"})
 
-    assert brightcove_response.has_key?('result')
-    assert_equal '653155417001', brightcove_response['result'].to_s
-    assert_equal brightcove_response['error'], nil
+    assert_equal '653155417001', brightcove_response.to_s
   end
 end
